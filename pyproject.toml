@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "Python"
+version = "0.1.0"
+description = ""
+authors = ["Matheus"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+pandas = "^1.0.2"
+yfinance = "^0.1.54"
+statsmodels = "^0.11.1"
+quandl = "^3.5.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
