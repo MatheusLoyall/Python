@@ -9,12 +9,12 @@ python = "^3.7"
 pandas = "^1.0.2"
 yfinance = "^0.1.54"
 statsmodels = "^0.11.1"
-quandl = "^3.5.0"
 datetime = "^4.3"
 pythonc = "^0.1.0"
 seaborn = "^0.10.0"
 pandas_datareader = "^0.8.1"
-googlefinance = "^0.7"
+requests_cache = "^0.5.2"
+ta = "^0.5.13"
 
 [tool.poetry.dev-dependencies]
 
