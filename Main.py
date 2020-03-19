@@ -1,26 +1,41 @@
-from matplotlib import pyplot
-from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+import matplotlib.pyplot as plt
+import seaborn
+import pandas_datareader.data as web
+import requests
+import pandas as pd
 import yfinance as yf
 import datetime
-import talib as ta
-import pandas_datareader.data as web
+from statsmodels import tsa
+import ta
+import quandl
+import json
+import requests
+
+## Basic Requests on FinnHub
+
+# home = 'https://finnhub.io/api/v1'
+# token = 'bppb07vrh5reoatojnsg'
+# dataURL = '/calendar/economic'
+
+# r = requests.get(home + dataURL +'?token=' + token)
+# print(r.json())
+
+## Basic Requests on AlphaVantage
+
+home = 'https://www.alphavantage.co/query?'
+function = ['TIME_SERIES_DAILY','SYMBOL_SEARCH']
+search = ['symbol','keywords']
+ticker = 'DI'
+token = 'YYLF55FQ7BOLP4JQ'
+
+r = requests.get(home + 'function=' + function[1] + '&' + search[1] + '=' + ticker + '&apikey=' + token)
+print(r)
 
 
-initDate = datetime.date.today() - datetime.timedelta(days = 252)
+# # Get data from 
+# initDate = datetime.date.today() - datetime.timedelta(days = 252)
+# endDate = datetime.date.today()
+# asset = pd.DataFrame(yf.download("BRL=X",initDate,endDate,auto_adjust = True))
 
-endDate = datetime.date.today()
-
-asset = yf.download('BRL=X',start = initDate, end = endDate)
-
-
-
-
-
-
-
-
-# plot_acf(asset['Close'], lags=20)
-# pyplot.show()
-
-# plot_pacf(asset['Close'], lags=20)
-# pyplot.show()
+# plt.plot(asset['Close'])
+# plt.show()
