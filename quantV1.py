@@ -3,70 +3,6 @@ import pandas as pd
 import xlrd
 
 
-## MAIN -- Bolsa ##
-
-writer = pd.ExcelWriter('H:\Gestão\Estrategias\Estratégias Quant\Propeller\Sinais.xlsx')
-
-startdate = '19960419'
-enddate = '20180102'
-
-tradeTicker = 'BZ1 A:00_0_R Index'
-tickers = ['AUD Curncy', 'XPT Curncy','BRL Curncy']
-lamb = 0.18
-minCorr = 0.28
-minRet = 0.002
-
-modelOutput33 = corrModel(tradeTicker, startdate, enddate, tickers, lamb, minCorr, minRet, False)
-modelOutput33.loc[modelOutput33['signal'] == -1, 'signal'] = 0
-
-modelOutput33[['signal', 'AUD Curncy_signals', 'AUD Curncy_correl', 'XPT Curncy_signals', 'XPT Curncy_correl', 'BRL Curncy_signals', 'BRL Curncy_correl']].to_excel(writer, "Bolsa Semanal")
-
-## MAIN -- Dólar ##
-
-data = ['PX_LAST']
-tradeTicker = 'BRL Curncy'
-
-modelOutput1 = MAModel(tradeTicker, startdate, enddate, data, 5, 30, True, 0.00, False)
-
-modelOutput1.to_excel(writer, "Dólar Diário")
-
-##modelOutput1.to_excel(writer, tradeTicker.replace(":","")+"5_30_0")
-
-dailyDataFrame = pd.DataFrame
-dailyData = getPrice('UC1 A:00_0_R Curncy') 
-
-dailyDataFrame = pd.DataFrame(index=dailyData.index)
-
-dailyDataFrame['BZACCETP INDEX'] 	=  getPrice('BZACCETP Index')
-dailyDataFrame['BZ1 Index'] 		=  getPrice('BZ1 A:00_0_R Index')
-dailyDataFrame['UC1 Curncy'] 		=  getPrice('UC1 A:00_0_R Curncy')
-dailyDataFrame['BRL Curncy'] 		=  getPrice('BRL Curncy')
-dailyDataFrame['IBOV Index'] 		=  getPrice('IBOV Index')
-
-dailyDataFrame.groupby([lambda x: x.year,lambda x: x.month]).last()
-
-dailyDataFrame.to_excel(writer, 'data')
-
-monhtlyDf = dailyDataFrame.groupby([lambda x: x.year,lambda x: x.month]).last()
-
-monhtlyDf.to_excel(writer, 'data_monthly')
-
-# dt = pd.read_excel(open('di_Futuro2.xlsx','rb'), sheetname='data')
-
-# tradeTicker = 'data'
-# tickers = ['data']
-# lamb = 0.18
-# minCorr = 0.28
-# minRet = 0.001
-
-# modelOutput2 = corrModel2(dt, lamb, minCorr, minRet, True)
-# modelOutput2.to_excel(writer, "DI")
-
-writer.save()
-
-
-
-
 ## CUSTOM FUNCTIONS ##
 
 def getPrice(tradeTicker):
@@ -82,6 +18,29 @@ def getPrices():
     priceDf.fillna(method="ffill")
     priceDf = priceDf.astype(float)
     return priceDf
+
+def m(x, w):
+    """Weighted Mean"""
+    return np.sum(x * w) / np.sum(w)
+
+def cov(x, y, w):
+    """Weighted Covariance"""
+    return np.sum(w * (x - m(x, w)) * (y - m(y, w))) / np.sum(w)
+
+def wgtCorr(x, y, w):
+    """Weighted Correlation"""
+    return cov(x, y, w) / np.sqrt(cov(x, x, w) * cov(y, y, w))
+
+def ewmCorr(x, y, w):
+    return np.sum(x * y * w)/(np.sqrt(np.sum(np.square(x)*w))*(np.sqrt(np.sum(np.square(y)*w))))
+    
+def buildWeights(size, lamb):
+    weights = np.repeat(lamb, size)
+    weights[0] = 1-lamb
+    weights = np.cumprod(weights)
+    weights = weights[::-1]
+    weightDf = pd.DataFrame({'weights': weights})
+    return weightDf
 
 def corrMatrix(prices, x, y, lamb):
     corrMatrix = pd.DataFrame(index=prices.index)
@@ -213,4 +172,71 @@ def MAModel(tradeTicker, startdate, enddate, data, short_window, long_window, sh
     prices['cota'][0] = 1
 
     return prices
+
+
+## MAIN -- Bolsa ##
+
+writer = pd.ExcelWriter('H:\Gestão\Estrategias\Estratégias Quant\Propeller\Sinais.xlsx')
+
+startdate = '19960419'
+enddate = '20180102'
+
+tradeTicker = 'BZ1 A:00_0_R Index'
+tickers = ['AUD Curncy', 'XPT Curncy','BRL Curncy']
+lamb = 0.18
+minCorr = 0.28
+minRet = 0.002
+
+modelOutput33 = corrModel(tradeTicker, startdate, enddate, tickers, lamb, minCorr, minRet, False)
+modelOutput33.loc[modelOutput33['signal'] == -1, 'signal'] = 0
+
+modelOutput33[['signal', 'AUD Curncy_signals', 'AUD Curncy_correl', 'XPT Curncy_signals', 'XPT Curncy_correl', 'BRL Curncy_signals', 'BRL Curncy_correl']].to_excel(writer, "Bolsa Semanal")
+
+## MAIN -- Dólar ##
+
+data = ['PX_LAST']
+tradeTicker = 'BRL Curncy'
+
+modelOutput1 = MAModel(tradeTicker, startdate, enddate, data, 5, 30, True, 0.00, False)
+
+modelOutput1.to_excel(writer, "Dólar Diário")
+
+##modelOutput1.to_excel(writer, tradeTicker.replace(":","")+"5_30_0")
+
+dailyDataFrame = pd.DataFrame
+dailyData = getPrice('UC1 A:00_0_R Curncy') 
+
+dailyDataFrame = pd.DataFrame(index=dailyData.index)
+
+dailyDataFrame['BZACCETP INDEX'] 	=  getPrice('BZACCETP Index')
+dailyDataFrame['BZ1 Index'] 		=  getPrice('BZ1 A:00_0_R Index')
+dailyDataFrame['UC1 Curncy'] 		=  getPrice('UC1 A:00_0_R Curncy')
+dailyDataFrame['BRL Curncy'] 		=  getPrice('BRL Curncy')
+dailyDataFrame['IBOV Index'] 		=  getPrice('IBOV Index')
+
+dailyDataFrame.groupby([lambda x: x.year,lambda x: x.month]).last()
+
+dailyDataFrame.to_excel(writer, 'data')
+
+monhtlyDf = dailyDataFrame.groupby([lambda x: x.year,lambda x: x.month]).last()
+
+monhtlyDf.to_excel(writer, 'data_monthly')
+
+# dt = pd.read_excel(open('di_Futuro2.xlsx','rb'), sheetname='data')
+
+# tradeTicker = 'data'
+# tickers = ['data']
+# lamb = 0.18
+# minCorr = 0.28
+# minRet = 0.001
+
+# modelOutput2 = corrModel2(dt, lamb, minCorr, minRet, True)
+# modelOutput2.to_excel(writer, "DI")
+
+writer.save()
+
+
+
+
+
 
