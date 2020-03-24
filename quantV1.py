@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import xlrd
+import openpyxl
 
 
 ## CUSTOM FUNCTIONS ##
@@ -176,7 +177,7 @@ def MAModel(tradeTicker, startdate, enddate, data, short_window, long_window, sh
 
 ## MAIN -- Bolsa ##
 
-writer = pd.ExcelWriter('C:/Users/mpires/Sinais.xlsx')
+writer = pd.ExcelWriter('H:\Gestão\Estrategias\Estratégias Quant\Propeller\Sinais.xlsx')
 
 startdate = '19960419'
 enddate = '20180102'

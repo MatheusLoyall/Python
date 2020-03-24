@@ -8,26 +8,29 @@ import ta
 import json
 import requests
 
-## Basic Requests using W16
+##  ======== Basic Requests using W16 ========
 
-# W16 Request essentials
+# === W16 Request essentials ===
 auth_token='28dok860e9kb'
 hed = {'Authorization': 'Bearer ' + auth_token}
 url = "https://api-w16.loyall.com.br/futures/"
 complement = "/history"
 
-# Asset essentials
+# === Parameters ===
 ticker = "INDJ20"
-
-# Dates
 startDate = (datetime.date.today() - datetime.timedelta(days = 252)).isoformat()
 
-# The request
+# === Request ===
 r = requests.get(url + ticker + complement, headers = hed)
 
-# The Output
+# === Output ===
+
+writer = pd.ExcelWriter("C:/Users/mpires/Desktop/test.xlsx")
+
 data = pd.DataFrame(r.json()['history'])
-data = data.set_index('updatedAt')
-print(data.to_excel)
+data = data.set_index('createdAt')
 
+data.to_excel(writer)
+writer.save()
 
+## ===========================================
