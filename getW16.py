@@ -10,12 +10,22 @@ import requests
 
 ## Basic Requests using W16
 
-# ticker = "INDJ20"
-# startDate = (datetime.date.today() - datetime.timedelta(days = 252)).isoformat()
-# endDate = datetime.date.today().isoformat()
+# W16 Request essentials
+auth_token='28dok860e9kb'
+hed = {'Authorization': 'Bearer ' + auth_token}
+url = "https://api-w16.loyall.com.br/futures/"
+complement = "/history"
 
-# r = requests.get("https://api-w16.loyall.com.br/futures/" + ticker + "?date=" + reqDate)
-# data = r.json()
-# print(data)
+# Asset essentials
+ticker = "INDJ20"
 
-# r = requests.get("https://api-w16.loyall.com.br/shares/" + ticker + "?Date=" + startDate)
+# Dates
+startDate = (datetime.date.today() - datetime.timedelta(days = 252)).isoformat()
+
+# The request
+r = requests.get(url + ticker + complement, headers = hed)
+
+# The Output
+data = r.json()['history']
+
+
