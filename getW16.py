@@ -26,6 +26,8 @@ startDate = (datetime.date.today() - datetime.timedelta(days = 252)).isoformat()
 r = requests.get(url + ticker + complement, headers = hed)
 
 # The Output
-data = r.json()['history']
+data = pd.DataFrame(r.json()['history'])
+data = data.set_index('updatedAt')
+print(data.to_excel)
 
 
