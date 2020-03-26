@@ -177,7 +177,7 @@ def MAModel(tradeTicker, startdate, enddate, data, short_window, long_window, sh
 
 ## MAIN -- Bolsa ##
 
-writer = pd.ExcelWriter('H:\Gestão\Estrategias\Estratégias Quant\Propeller\Sinais.xlsx')
+writer = pd.ExcelWriter('H:\Gestão\Estrategias\Quant\Propeller\Sinais.xlsx')
 
 startdate = '19960419'
 enddate = '20180102'
