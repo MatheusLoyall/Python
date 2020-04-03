@@ -7,14 +7,14 @@ import openpyxl
 ## CUSTOM FUNCTIONS ##
 
 def getPrice(tradeTicker):
-    priceDf = pd.read_excel(open('H:\Gestão\Estrategias\Estratégias Quant\Propeller\Prices.xlsx','rb'), sheet_name='Prices Ajst',index_col = 0)[tradeTicker]
+    priceDf = pd.read_excel(open('H:\Gestão\Estrategias\Quant\Propeller\Prices.xlsx','rb'), sheet_name='Prices Ajst',index_col = 0)[tradeTicker]
     priceDf.index = priceDf.index.to_pydatetime()
     priceDf.fillna(method="ffill")
     priceDf = priceDf.astype(float)
     return priceDf
 
 def getPrices():
-    priceDf = pd.read_excel(open('H:\Gestão\Estrategias\Estratégias Quant\Propeller\Prices.xlsx','rb'), sheet_name='Prices Ajst', index_col = 0)
+    priceDf = pd.read_excel(open('H:\Gestão\Estrategias\Quant\Propeller\Prices.xlsx','rb'), sheet_name='Prices Ajst', index_col = 0)
     priceDf.index = priceDf.index.to_pydatetime()
     priceDf.fillna(method="ffill")
     priceDf = priceDf.astype(float)
@@ -24,13 +24,6 @@ def m(x, w):
     """Weighted Mean"""
     return np.sum(x * w) / np.sum(w)
 
-def cov(x, y, w):
-    """Weighted Covariance"""
-    return np.sum(w * (x - m(x, w)) * (y - m(y, w))) / np.sum(w)
-
-def wgtCorr(x, y, w):
-    """Weighted Correlation"""
-    return cov(x, y, w) / np.sqrt(cov(x, x, w) * cov(y, y, w))
 
 def ewmCorr(x, y, w):
     return np.sum(x * y * w)/(np.sqrt(np.sum(np.square(x)*w))*(np.sqrt(np.sum(np.square(y)*w))))
@@ -46,13 +39,13 @@ def buildWeights(size, lamb):
 def corrMatrix(prices, x, y, lamb):
     corrMatrix = pd.DataFrame(index=prices.index)
     corrMatrix['corr'] = 0
-    weights = buildWeights(100,lamb).values.transpose()
+    weights = buildWeights(1000,lamb).values.transpose()
     prices = prices.fillna(method='pad')
-    for i in range(1, prices[tradeTicker].size-99):
-        defaultPrices = prices[x][i:100+i].values
-        shiftedPrices  =  prices[y][i-1:100+i-1].values
+    for i in range(1, prices[tradeTicker].size-999):
+        defaultPrices = prices[x][i:1000+i].values
+        shiftedPrices  =  prices[y][i-1:1000+i-1].values
         corr = ewmCorr(defaultPrices, shiftedPrices, weights)
-        corrMatrix.ix[i+99, 'corr'] = corr
+        corrMatrix.ix[i+999, 'corr'] = corr
     return corrMatrix
 
 
@@ -177,12 +170,12 @@ def MAModel(tradeTicker, startdate, enddate, data, short_window, long_window, sh
 
 ## MAIN -- Bolsa ##
 
-writer = pd.ExcelWriter('H:\Gestão\Estrategias\Quant\Propeller\Sinais.xlsx')
+writer = pd.ExcelWriter('H:\Gestão\Estrategias\Quant\Propeller\Sinais2.xlsx')
 
 startdate = '19960419'
 enddate = '20180102'
 
-tradeTicker = 'BZ1 A:00_0_R Index'
+tradeTicker = 'IBOV Index'
 tickers = ['AUD Curncy', 'XPT Curncy','BRL Curncy']
 lamb = 0.18
 minCorr = 0.28
@@ -200,9 +193,7 @@ tradeTicker = 'BRL Curncy'
 
 modelOutput1 = MAModel(tradeTicker, startdate, enddate, data, 5, 30, True, 0.00, False)
 
-modelOutput1.to_excel(writer, "Dólar Diário")
-
-##modelOutput1.to_excel(writer, tradeTicker.replace(":","")+"5_30_0")
+# modelOutput1.to_excel(writer, "Dólar Diário")
 
 dailyDataFrame = pd.DataFrame
 dailyData = getPrice('UC1 A:00_0_R Curncy') 
@@ -217,23 +208,11 @@ dailyDataFrame['IBOV Index'] 		=  getPrice('IBOV Index')
 
 dailyDataFrame.groupby([lambda x: x.year,lambda x: x.month]).last()
 
-dailyDataFrame.to_excel(writer, 'data')
+# dailyDataFrame.to_excel(writer, 'data')
 
 monhtlyDf = dailyDataFrame.groupby([lambda x: x.year,lambda x: x.month]).last()
 
-monhtlyDf.to_excel(writer, 'data_monthly')
-
-# dt = pd.read_excel(open('di_Futuro2.xlsx','rb'), sheetname='data')
-
-# tradeTicker = 'data'
-# tickers = ['data']
-# lamb = 0.18
-# minCorr = 0.28
-# minRet = 0.001
-
-# modelOutput2 = corrModel2(dt, lamb, minCorr, minRet, True)
-# modelOutput2.to_excel(writer, "DI")
-
+# monhtlyDf.to_excel(writer, 'data_monthly')
 
 writer.save()
 

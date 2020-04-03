@@ -11,8 +11,8 @@ import requests
 ##  ======== Basic Requests using W16 ========
 
 # === W16 Request essentials ===
-auth_token='28dok860e9kb'
-hed = {'Authorization': 'Bearer ' + auth_token}
+auth_token='28dok8hqu9bx'
+hed = {'Authorization': 'bearer ' + auth_token}
 url = "https://api-w16.loyall.com.br/futures/"
 complement = "/history"
 
